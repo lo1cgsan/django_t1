@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 from django.http import HttpResponse
 # from django.template import loader
@@ -11,7 +12,11 @@ def index(request):
     return render(request, 'ankieta/index.html', kontekst)
 
 def szczegoly(request, pytanie_id):
-    return HttpResponse("Przeglądasz pytanie %s." % pytanie_id)
+    try:
+        pytanie = Pytanie.objects.get(pk=pytanie_id)
+    except Pytanie.DoesNotExist:
+        raise Http404("Pytanie nie istnieje")
+    return render(request, 'ankieta/szczegoly.html', {'pytanie':pytanie})
 
 def wyniki(request, pytanie_id):
     response = "Przeglądasz wyniki pytania %s."
