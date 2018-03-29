@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 # from django.template import loader
 
@@ -12,10 +12,7 @@ def index(request):
     return render(request, 'ankieta/index.html', kontekst)
 
 def szczegoly(request, pytanie_id):
-    try:
-        pytanie = Pytanie.objects.get(pk=pytanie_id)
-    except Pytanie.DoesNotExist:
-        raise Http404("Pytanie nie istnieje")
+    pytanie = get_object_or_404(Pytanie, pk=pytanie_id)
     return render(request, 'ankieta/szczegoly.html', {'pytanie':pytanie})
 
 def wyniki(request, pytanie_id):
