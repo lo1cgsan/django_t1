@@ -1,0 +1,9 @@
+{% if ostatnie_pytania_lista %}
+    <ul>
+    {% for pytanie in ostatnie_pytania_lista %}
+        <li><a href="/ankieta/{{ pytanie.id }}/">{{ pytanie.pytanie_tekst }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
