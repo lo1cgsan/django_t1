@@ -12,7 +12,9 @@ class Pytanie(models.Model):
         return self.pytanie_tekst
 
     def opublikowane_ostatnio(self):
-        return self.pub_data >= timezone.now() - datetime.timedelta(days=1)
+        teraz = timezone.now()
+        return teraz - datetime.timedelta(days=1) <= self.pub_data <= teraz
+
 
 class Odpowiedz(models.Model):
     pytanie = models.ForeignKey(Pytanie, on_delete=models.CASCADE)
