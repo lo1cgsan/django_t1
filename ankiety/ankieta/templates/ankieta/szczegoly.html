@@ -1,6 +1,17 @@
 <h1>{{ pytanie.pytanie_tekst }}</h1>
+
+{% if blad_tekst %}<p><strong>{{ blad_tekst }}</strong></p>{% endif %}
+
 <ul>
 {% for odpowiedz in pytanie.odpowiedz_set.all %}
     <li>{{ odpowiedz.wybor_tekst }}</li>
 {% endfor %}
 </ul>
+<form action="{% url 'ankieta:glos' pytanie.id %}" method="post">
+{% csrf_token %}
+{% for odpowiedz in pytanie.odpowiedz_set.all %}
+    <input type="radio" name="odpowiedz" id="odpowiedz{{ forloop.counter }}" value="{{ odpowiedz.id }}" />
+    <label for="odpowiedz{{ forloop.counter }}">{{ odpowiedz.wybor_tekst }}</label><br />
+{% endfor %}
+<input type="submit" value="Glos" />
+</form>
