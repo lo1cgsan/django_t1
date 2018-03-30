@@ -4,22 +4,29 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 # from django.template import loader
+from django.views import generic
 
 from .models import Pytanie, Odpowiedz
 
 
-def index(request):
-    ostatnie_pytania_lista = Pytanie.objects.order_by('-pub_data')[:5]
-    kontekst = {'ostatnie_pytania_lista': ostatnie_pytania_lista}
-    return render(request, 'ankieta/index.html', kontekst)
+class IndexView(generic.ListView):
+    template_name = 'ankieta/index.html'
+    context_object_name = 'ostatnie_pytania_lista'
 
-def szczegoly(request, pytanie_id):
-    pytanie = get_object_or_404(Pytanie, pk=pytanie_id)
-    return render(request, 'ankieta/szczegoly.html', {'pytanie':pytanie})
+    def get_queryset(self):
+        """Zwraca 5 ostatnio opublikowanych ankiet"""
+        return Pytanie.objects.order_by('-pub_data')[:5]
 
-def wyniki(request, pytanie_id):
-    pytanie = get_object_or_404(Pytanie, pk=pytanie_id)
-    return render(request, 'ankieta/wyniki.html', {'pytanie':pytanie})
+
+class SzczegolyView(generic.DetailView):
+    model = Pytanie
+    template_name = 'ankieta/szczegoly.html'
+
+
+class WynikiView(generic.DetailView):
+    model = Pytanie
+    template_name = 'ankieta/wyniki.html'
+
 
 def glos(request, pytanie_id):
     pytanie = get_object_or_404(Pytanie, pk=pytanie_id)
