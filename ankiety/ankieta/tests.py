@@ -75,7 +75,7 @@ class PytanieIndexViewTests(TestCase):
         self.assertContains(response, "No polls are available.")
         self.assertQuerysetEqual(response.context['ostatnie_pytania_lista'], [])
 
-    def test_future_pytanie_and_past_pytanie(self):
+    def test_przyszle_pytanie_and_past_pytanie(self):
         """
         Jeżeli istnieją pytania przeszłe i przyszłe, tylko przeszłe
         są wyświetlane.
@@ -99,3 +99,23 @@ class PytanieIndexViewTests(TestCase):
             response.context['ostatnie_pytania_lista'],
             ['<Pytanie: Przeszłe pytanie 2.>', '<Pytanie: Przeszłe pytanie 1.>']
         )
+
+
+class PytanieSzczegolyViewTests(TestCase):
+    def test_przyszle_pytanie(self):
+        """
+        Widok szczegółowy pytania z datą przyszłą powinien zwrócić 404.
+        """
+        przyszle_pytanie = create_pytanie(pytanie_tekst='Przyszłe pytanie.', days=5)
+        url = reverse('ankieta:szczegoly', args=(przyszle_pytanie.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_przeszle_pytanie(self):
+        """
+        Widok szczegółowy pytania z datą przeszłą zwraca tekst pytania.
+        """
+        przeszle_pytanie = create_pytanie(pytanie_tekst='Przeszle Pytanie.', days=-5)
+        url = reverse('ankieta:szczegoly', args=(przeszle_pytanie.id,))
+        response = self.client.get(url)
+        self.assertContains(response, przeszle_pytanie.pytanie_tekst)

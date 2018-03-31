@@ -26,6 +26,12 @@ class SzczegolyView(generic.DetailView):
     model = Pytanie
     template_name = 'ankieta/szczegoly.html'
 
+    def get_queryset(self):
+       """
+       Wykluczenie wszystkich nieopublikowanych jeszcze pytań
+       """
+       return Pytanie.objects.filter(pub_data__lte=timezone.now())
+
 
 class WynikiView(generic.DetailView):
     model = Pytanie
