@@ -5,17 +5,21 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 # from django.template import loader
 from django.views import generic
+from django.utils import timezone
 
 from .models import Pytanie, Odpowiedz
 
 
 class IndexView(generic.ListView):
+    """Zwraca 5 ostatnio opublikowanych ankiet (bez ankiet opublikowanych w przyszłości)"""
     template_name = 'ankieta/index.html'
     context_object_name = 'ostatnie_pytania_lista'
 
     def get_queryset(self):
         """Zwraca 5 ostatnio opublikowanych ankiet"""
-        return Pytanie.objects.order_by('-pub_data')[:5]
+        return Pytanie.objects.filter(
+            pub_data__lte=timezone.now()
+        ).order_by('-pub_data')[:5]
 
 
 class SzczegolyView(generic.DetailView):
@@ -34,7 +38,7 @@ def glos(request, pytanie_id):
         wybrana_odpowiedz = pytanie.odpowiedz_set.get(pk=request.POST['odpowiedz'])
     except (KeyError, Odpowiedz.DoesNotExist):
         # Redisplay the pytanie voting form.
-        return render(request, 'polls/szczegoly.html', {
+        return render(request, 'ankieta/szczegoly.html', {
             'pytanie': pytanie,
             'blad_tekst': "Nie wybrałeś odpowiedzi.",
         })

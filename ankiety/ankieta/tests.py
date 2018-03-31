@@ -2,6 +2,7 @@ import datetime
 
 from django.utils import timezone
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import Pytanie
 
@@ -26,7 +27,7 @@ class PytanieModelTests(TestCase):
         stare_pytanie = Pytanie(pub_data=time)
         self.assertIs(stare_pytanie.opublikowane_ostatnio(), False)
 
-    def test_opublikowane_ostatnio_with_ostatnie_pytanie(self):
+    def test_opublikowane_ostatnio_z_ostatnie_pytanie(self):
         """
         opublikowane_ostatnio() zwracać ma True dla pytań których pub_data
         jest w ciągu ostatniego dnia.
