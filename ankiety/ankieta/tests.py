@@ -35,3 +35,67 @@ class PytanieModelTests(TestCase):
         time = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
         ostatnie_pytanie = Pytanie(pub_data=time)
         self.assertIs(ostatnie_pytanie.opublikowane_ostatnio(), True)
+
+def create_pytanie(pytanie_tekst, days):
+    """
+    Tworzy Pytanie z podanym tekstem i publikuje z datą przesuniętą
+    o podaną ilość dni ujemną w przeszłość lub dodatnią w przyszłość.
+    """
+    time = timezone.now() + datetime.timedelta(days=days)
+    return Pytanie.objects.create(pytanie_tekst=pytanie_tekst, pub_data=time)
+
+
+class PytanieIndexViewTests(TestCase):
+    def test_brak_pytan(self):
+        """
+        Jeżeli brak bytań, wyświetlany jest komunikat.
+        """
+        response = self.client.get(reverse('ankieta:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No polls are available.")
+        self.assertQuerysetEqual(response.context['ostatnie_pytania_lista'], [])
+
+    def test_przeszle_pytanie(self):
+        """
+        Pytania z datą w przeszłości wyświetlane są na stronie index.
+        """
+        create_pytanie(pytanie_tekst="Przeszłe pytanie.", days=-30)
+        response = self.client.get(reverse('ankieta:index'))
+        self.assertQuerysetEqual(
+            response.context['ostatnie_pytania_lista'],
+            ['<Pytanie: Przeszłe pytanie.>']
+        )
+
+    def test_przyszle_pytanie(self):
+        """
+        Pytania z datą w przyszłości nie są wyswietlane na stronie index.
+        """
+        create_pytanie(pytanie_tekst="Przyszłe pytanie.", days=30)
+        response = self.client.get(reverse('ankieta:index'))
+        self.assertContains(response, "No polls are available.")
+        self.assertQuerysetEqual(response.context['ostatnie_pytania_lista'], [])
+
+    def test_future_pytanie_and_past_pytanie(self):
+        """
+        Jeżeli istnieją pytania przeszłe i przyszłe, tylko przeszłe
+        są wyświetlane.
+        """
+        create_pytanie(pytanie_tekst="Przeszłe pytanie.", days=-30)
+        create_pytanie(pytanie_tekst="Przyszłe pytanie.", days=30)
+        response = self.client.get(reverse('ankieta:index'))
+        self.assertQuerysetEqual(
+            response.context['ostatnie_pytania_lista'],
+            ['<Pytanie: Przeszłe pytanie.>']
+        )
+
+    def test_dwa_przeszle_pytania(self):
+        """
+        Strona index może wyświetlać wiele pytań.
+        """
+        create_pytanie(pytanie_tekst="Przeszłe pytanie 1.", days=-30)
+        create_pytanie(pytanie_tekst="Przeszłe pytanie 2.", days=-5)
+        response = self.client.get(reverse('ankieta:index'))
+        self.assertQuerysetEqual(
+            response.context['ostatnie_pytania_lista'],
+            ['<Pytanie: Przeszłe pytanie 2.>', '<Pytanie: Przeszłe pytanie 1.>']
+        )
