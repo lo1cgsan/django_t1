@@ -119,3 +119,23 @@ class PytanieSzczegolyViewTests(TestCase):
         url = reverse('ankieta:szczegoly', args=(przeszle_pytanie.id,))
         response = self.client.get(url)
         self.assertContains(response, przeszle_pytanie.pytanie_tekst)
+
+
+class PytanieWynikiViewTests(TestCase):
+    def test_przyszle_pytanie(self):
+        """
+        Widok wyników pytania z datą przyszłą powinien zwrócić 404.
+        """
+        przyszle_pytanie = create_pytanie(pytanie_tekst='Przyszłe pytanie.', days=5)
+        url = reverse('ankieta:wyniki', args=(przyszle_pytanie.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_przeszle_pytanie(self):
+        """
+        Widok wyników pytania z datą przeszłą zwraca tekst pytania.
+        """
+        przeszle_pytanie = create_pytanie(pytanie_tekst='Przeszle Pytanie.', days=-5)
+        url = reverse('ankieta:wyniki', args=(przeszle_pytanie.id,))
+        response = self.client.get(url)
+        self.assertContains(response, przeszle_pytanie.pytanie_tekst)
