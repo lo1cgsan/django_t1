@@ -1,3 +1,6 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'ankieta/css/style.css' %}" />
+
 {% if ostatnie_pytania_lista %}
     <ul>
     {% for pytanie in ostatnie_pytania_lista %}
