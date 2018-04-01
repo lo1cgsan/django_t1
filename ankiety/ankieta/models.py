@@ -11,10 +11,13 @@ class Pytanie(models.Model):
         """reprezentacja obiektu"""
         return self.pytanie_tekst
 
+    @property
     def opublikowane_ostatnio(self):
         teraz = timezone.now()
         return teraz - datetime.timedelta(days=1) <= self.pub_data <= teraz
 
+    def ma_odpowiedzi(self):
+        return self.odpowiedz_set.all().count()
 
 class Odpowiedz(models.Model):
     pytanie = models.ForeignKey(Pytanie, on_delete=models.CASCADE)

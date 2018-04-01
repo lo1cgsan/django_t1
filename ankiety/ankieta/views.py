@@ -18,8 +18,9 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         """Zwraca 5 ostatnio opublikowanych ankiet"""
         return Pytanie.objects.filter(
-            pub_data__lte=timezone.now()
-        ).order_by('-pub_data')[:5]
+            pub_data__lte=timezone.now(),
+            odpowiedz__isnull=False
+        ).distinct().order_by('-pub_data')[:5]
 
 
 class SzczegolyView(generic.DetailView):
@@ -37,6 +38,11 @@ class WynikiView(generic.DetailView):
     model = Pytanie
     template_name = 'ankieta/wyniki.html'
 
+    def get_queryset(self):
+       """
+       Wykluczenie wszystkich nieopublikowanych jeszcze pytań
+       """
+       return Pytanie.objects.filter(pub_data__lte=timezone.now())
 
 def glos(request, pytanie_id):
     pytanie = get_object_or_404(Pytanie, pk=pytanie_id)
