@@ -59,7 +59,7 @@ class PytanieIndexViewTests(TestCase):
         """
         response = self.client.get(reverse('ankieta:index'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No polls are available.")
+        self.assertContains(response, "Brak ankiet.")
         self.assertQuerysetEqual(response.context['ostatnie_pytania_lista'], [])
 
     def test_przeszle_pytanie(self):
@@ -80,7 +80,7 @@ class PytanieIndexViewTests(TestCase):
         """
         create_pytanie(pytanie_tekst="Przyszłe pytanie.", days=30)
         response = self.client.get(reverse('ankieta:index'))
-        self.assertContains(response, "No polls are available.")
+        self.assertContains(response, "Brak ankiet.")
         self.assertQuerysetEqual(response.context['ostatnie_pytania_lista'], [])
 
     def test_przyszle_pytanie_i_przeszle_pytanie(self):
